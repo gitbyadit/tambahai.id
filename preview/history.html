@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat — TambahAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #fbfbfd; --surface: #ffffff; --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73; --accent: #0071e3; --grad-start: #6e3bfd; --grad-end: #0071e3;
+      --border: rgba(0,0,0,0.08); --radius: 16px; --green: #34c759; --orange: #ff9f0a; --blue-light: #e8f0fe;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+
+    /* TOP BAR */
+    .top-bar {
+      height: 52px; display: flex; align-items: center; gap: 12px;
+      padding: 0 16px; border-bottom: 1px solid var(--border);
+      background: rgba(251,251,253,0.85); backdrop-filter: saturate(180%) blur(20px); z-index: 100;
+    }
+    .back-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--accent); padding: 4px; font-family: inherit; }
+    .top-title h2 { font-size: 1rem; font-weight: 600; }
+    .top-title span { font-size: 0.75rem; color: var(--text-secondary); }
+    .role-badge { margin-left: auto; padding: 3px 10px; border-radius: 980px; font-size: 0.7rem; font-weight: 600; }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex; gap: 8px; padding: 16px; overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .filter-chip {
+      padding: 7px 16px; border-radius: 980px; font-size: 0.82rem;
+      font-weight: 500; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text-secondary);
+      cursor: pointer; white-space: nowrap; transition: all 0.2s;
+      font-family: inherit;
+    }
+    .filter-chip.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+
+    /* CONTENT */
+    .content { max-width: 720px; margin: 0 auto; padding: 0 16px 48px; }
+
+    /* MONTH GROUP */
+    .month-label {
+      font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 16px 0 8px; position: sticky; top: 52px;
+      background: var(--bg); z-index: 1;
+    }
+
+    /* CARD */
+    .consult-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); margin-bottom: 12px;
+      overflow: hidden; transition: box-shadow 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .consult-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); transform: translateY(-2px); }
+
+    .card-header {
+      padding: 18px 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .card-left { flex: 1; min-width: 0; }
+    .card-category {
+      display: inline-block; font-size: 0.7rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 6px; margin-bottom: 6px;
+      background: var(--blue-light); color: var(--accent);
+    }
+    .card-header h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; line-height: 1.35; }
+    .card-meta { font-size: 0.8rem; color: var(--text-secondary); }
+    .status-pill {
+      font-size: 0.72rem; font-weight: 600; padding: 4px 12px; border-radius: 980px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .status-done { background: rgba(52,199,89,0.1); color: var(--green); }
+    .status-pending { background: rgba(255,159,10,0.1); color: var(--orange); }
+
+    /* CARD BODY (expanded) */
+    .card-body {
+      padding: 0 20px 18px; display: none;
+    }
+    .card-body.open { display: block; animation: slideDown 0.25s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card-body .divider {
+      height: 1px; background: var(--border); margin-bottom: 14px;
+    }
+    .question-label { font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+    .question-text { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+    .answer-label { font-size: 0.72rem; font-weight: 600; color: var(--green); margin-bottom: 6px; }
+
+    .answer-preview {
+      font-size: 0.85rem; line-height: 1.55; padding: 14px;
+      background: rgba(52,199,89,0.04); border-radius: 12px;
+      border: 1px solid rgba(52,199,89,0.1);
+    }
+    .answer-preview ol { padding-left: 18px; }
+    .answer-preview li { margin-bottom: 4px; }
+
+    .expand-hint {
+      text-align: center; padding: 6px; font-size: 0.75rem;
+      color: var(--text-secondary); background: #fafafa;
+      border-top: 1px solid var(--border);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 60px 24px; color: var(--text-secondary);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.92rem; }
+
+    footer {
+      text-align: center; padding: 24px;
+      font-size: 0.8rem; color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <button class="back-btn" onclick="window.history.back()">←</button>
+  <div class="top-title">
+    <h2>Riwayat Konsultasi</h2>
+    <span id="totalCount">12 konsultasi</span>
+  </div>
+  <span class="role-badge" id="roleBadge"></span>
+</div>
+
+<!-- FILTER -->
+<div class="filter-bar">
+  <button class="filter-chip active" data-filter="all">Semua</button>
+  <button class="filter-chip" data-filter="done">✅ Selesai</button>
+  <button class="filter-chip" data-filter="pending">⏳ Diproses</button>
+  <button class="filter-chip" data-filter="marketing">📢 Marketing</button>
+  <button class="filter-chip" data-filter="sdm">👥 SDM</button>
+  <button class="filter-chip" data-filter="keuangan">💰 Keuangan</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content" id="content">
+  <!-- filled by JS -->
+</div>
+
+<footer>
+  © 2026 <a href="index.html">TambahAI</a> · <a href="dashboard.html">Kembali ke Dashboard</a>
+</footer>
+
+<script>
+  // Load user
+  const user = JSON.parse(localStorage.getItem('tambahai_user') || '{}');
+  if (!user.name) { window.location.href = 'login.html'; }
+  const badge = document.getElementById('roleBadge');
+  badge.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+  badge.className = 'role-badge role-' + user.role;
+
+  // Demo data
+  const consults = [
+    {
+      id: 5, date: '2026-08-31T12:00:00', category: 'Marketing', status: 'done',
+      question: 'Penjualan toko offline saya turun 30% dalam 2 bulan terakhir. Gimana cara naikinnya lagi?',
+      answer: `<ol>
+        <li><strong>Evaluasi produk</strong> — Cek 3 produk terlaris dan 3 terendah. Buat bundle promo dari yang lemah.</li>
+        <li><strong>Iklan Instagram lokal</strong> — Budget Rp50rb/hari, radius 10km dari tokomu. Target audiens usia 18-40.</li>
+        <li><strong>Program loyalitas</strong> — Stempel fisik / digital. Belanja 5x → diskon 15%. Repeat rate naik ~35%.</li>
+        <li><strong>Tambah channel</strong> — Buka jual di Shopee/Tokopedia buat jangkau pasar lebih luas.</li>
+      </ol>`
+    },
+    {
+      id: 4, date: '2026-08-30T09:30:00', category: 'Marketing', status: 'done',
+      question: 'Saya mau bikin strategi iklan Instagram yang efektif untuk bisnis kuliner saya.',
+      answer: `<ol>
+        <li><strong>Foto makanan berkualitas</strong> — Light natural atau softbox murah. Angle 45° paling menggoda.</li>
+        <li><strong>Konten reel 3x seminggu</strong> — Behind-the-scenes cooking, customer testimonial, promo harian.</li>
+        <li><strong>Collab dengan food influencer lokal</strong> — Barter makan gratis daripada bayar mahal.</li>
+        <li><strong>Instagram ads boost</strong> — Post terbaik di-boost Rp30rb per post, target followers lokasi.</li>
+      </ol>`
+    },
+    {
+      id: 3, date: '2026-08-28T14:00:00', category: 'SDM', status: 'done',
+      question: 'Cara atasi karyawan bolos dan malas agar produktivitas naik?',
+      answer: `<ol>
+        <li><strong>Buat SOP & checklist harian</strong> — Setiap posisi kerja punya daftar tugas yang harus diselesaikan.</li>
+        <li><strong>Sistem reward</strong> — Bonus kecil tiap minggu bagi karyawan tanpa bolos + target tercapai.</li>
+        <li><strong>Morning meeting 15 menit</strong> — Briefing singkat, set mood dan prioritas hari ini.</li>
+      </ol>`
+    },
+    {
+      id: 2, date: '2026-08-26T11:00:00', category: 'Keuangan', status: 'done',
+      question: 'Bagaimana mengoptimalkan cashflow untuk UMKM F&B?',
+      answer: `<ol>
+        <li><strong>Pisahkan rekening pribadi & bisnis</strong> — Ini dasar pertama yang sering dilupakan.</li>
+        <li><strong>Reservasi modal kerja 3 bulan</strong> — Sisihkan 20% profit bulanan sebagai buffer.</li>
+        <li><strong>Inventory tracking</strong> — Catat semua bahan baku masuk-keluar pakai Excel atau aplikasi sederhana.</li>
+      </ol>`
+    },
+    {
+      id: 1, date: '2026-08-24T16:00:00', category: 'Keuangan', status: 'pending',
+      question: 'Revenue stabil tapi profit tipis, ada saran untuk memperbaiki margins?',
+      answer: `Belum selesai di-process. Mohon tunggu sebentar ya.`
+    }
+  ];
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function formatFullDate(dateStr) {
+    return d => d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+  function timeAgo(dateStr) {
+    const now = new Date();
+    const d = new Date(dateStr);
+    const diffMin = Math.floor((now - d) / 60000);
+    if (diffMin < 1) return 'Baru saja';
+    if (diffMin < 60) return diffMin + ' menit lalu';
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return diffHr + ' jam lalu';
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffDay < 7) return diffDay + ' hari lalu';
+    return formatDate(dateStr);
+  }
+  const fmtFullDate = formatFullDate();
+
+  const catIcons = { Marketing: '📢', SDM: '👥', Keuangan: '💰', Operasional: '⚙️', Lainnya: '📌' };
+
+  function renderConsults(filter = 'all') {
+    const container = document.getElementById('content');
+    let filtered = consults;
+    if (filter === 'done') filtered = consults.filter(c => c.status === 'done');
+    else if (filter === 'pending') filtered = consults.filter(c => c.status === 'pending');
+    else if (filter !== 'all') filtered = consults.filter(c => c.category.toLowerCase() === filter);
+
+    document.getElementById('totalCount').textContent = filtered.length + ' konsultasi';
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Belum ada konsultasi${filter !== 'all' ? ' dengan filter ini' : ''}. Mulai sekarang!</p></div>`;
+      return;
+    }
+
+    // Group by month
+    const grouped = {};
+    filtered.forEach(c => {
+      const m = fmtFullDate(new Date(c.date));
+      if (!grouped[m]) grouped[m] = [];
+      grouped[m].push(c);
+    });
+
+    let html = '';
+    for (const [month, items] of Object.entries(grouped)) {
+      html += `<div class="month-label">${month}</div>`;
+      items.forEach(c => {
+        const icon = catIcons[c.category] || '📌';
+        html += `
+          <div class="consult-card" onclick="toggleCard(this)">
+            <div class="card-header">
+              <div class="card-left">
+                <span class="card-category">${icon} ${c.category}</span>
+                <h3>${c.question.substring(0, 60)}${c.question.length > 60 ? '…' : ''}</h3>
+                <div class="card-meta">${timeAgo(c.date)}</div>
+              </div>
+              <span class="status-pill status-${c.status}">${c.status === 'done' ? 'Selesai' : 'Diproses'}</span>
+            </div>
+            <div class="card-body">
+              <div class="divider"></div>
+              <div class="question-label">Pertanyaan</div>
+              <div class="question-text">${c.question}</div>
+              <div class="answer-label">Jawaban TambahAI</div>
+              <div class="answer-preview">${c.answer}</div>
+            </div>
+            <div class="expand-hint">Ketuk untuk detail ↓</div>
+          </div>`;
+      });
+    }
+    container.innerHTML = html;
+  }
+
+  function toggleCard(card) {
+    const body = card.querySelector('.card-body');
+    body.classList.toggle('open');
+    const hint = card.querySelector('.expand-hint');
+    hint.textContent = body.classList.contains('open') ? 'Ketuk untuk tutup ↑' : 'Ketuk untuk detail ↓';
+  }
+
+  // Filter chips
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderConsults(chip.dataset.filter);
+    });
+  });
+
+  // Initial render
+  renderConsults();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TambahAI — Solusi Bisnis Cerdas dari Percakapan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #fbfbfd;
+      --surface: #ffffff;
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --gradient-start: #6e3bfd;
+      --gradient-end: #0071e3;
+      --border: rgba(0,0,0,0.08);
+      --card-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      --radius: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(251,251,253,0.8);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto;
+      padding: 0 24px; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-weight: 700; font-size: 1.15rem;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a {
+      text-decoration: none; color: var(--text-secondary);
+      font-size: 0.85rem; font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .btn-nav {
+      background: var(--accent); color: #fff !important;
+      padding: 7px 18px; border-radius: 980px; font-size: 0.85rem;
+      font-weight: 500; transition: background 0.2s;
+    }
+    .btn-nav:hover { background: var(--accent-hover); }
+
+    /* ── SECTIONS ── */
+    section { padding: 120px 24px; }
+    .container { max-width: 1040px; margin: 0 auto; }
+
+    /* ── HERO ── */
+    .hero {
+      padding-top: 160px; padding-bottom: 100px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block; padding: 5px 14px;
+      background: rgba(110,59,253,0.08); color: var(--gradient-start);
+      font-size: 0.8rem; font-weight: 600; border-radius: 980px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 5.5vw, 4rem);
+      font-weight: 700; letter-spacing: -0.03em;
+      line-height: 1.1; max-width: 720px; margin: 0 auto 20px;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.2rem; color: var(--text-secondary);
+      max-width: 540px; margin: 0 auto 40px; line-height: 1.65;
+    }
+    .cta-group { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #fff;
+      padding: 15px 32px; border-radius: 980px; font-size: 1rem;
+      font-weight: 600; text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: scale(1.03); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--accent);
+      padding: 15px 32px; border-radius: 980px; font-size: 1rem;
+      font-weight: 600; text-decoration: none; border: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(0,113,227,0.06); }
+
+    /* ── PHONE MOCKUP ── */
+    .phone-wrap {
+      display: flex; justify-content: center; margin-top: 64px;
+    }
+    .phone {
+      width: 280px; height: 560px;
+      background: var(--surface);
+      border-radius: 40px;
+      border: 3px solid #e0e0e5;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.03);
+      overflow: hidden; position: relative;
+    }
+    .phone-notch {
+      width: 120px; height: 28px;
+      background: #1d1d1f; border-radius: 0 0 18px 18px;
+      margin: 0 auto;
+    }
+    .phone-screen { padding: 20px 16px 16px; height: calc(100% - 28px); }
+    .chat-header {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 14px; border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.75rem; font-weight: 700;
+    }
+    .chat-name { font-weight: 600; font-size: 0.9rem; }
+    .chat-status { font-size: 0.7rem; color: #34c759; }
+    .msg { margin-bottom: 12px; max-width: 85%; }
+    .msg-user {
+      margin-left: auto; text-align: right;
+    }
+    .msg-bubble {
+      display: inline-block; padding: 10px 14px;
+      border-radius: 16px; font-size: 0.82rem; line-height: 1.45;
+    }
+    .msg-bot .msg-bubble {
+      background: #f2f2f7; border-bottom-left-radius: 4px;
+      color: var(--text-primary);
+    }
+    .msg-user .msg-bubble {
+      background: var(--accent); border-bottom-right-radius: 4px;
+      color: #fff;
+    }
+    .typing {
+      display: inline-flex; gap: 4px; padding: 12px 16px;
+      background: #f2f2f7; border-radius: 16px; border-bottom-left-radius: 4px;
+    }
+    .typing span {
+      width: 7px; height: 7px; background: #a1a1a6;
+      border-radius: 50%; animation: bounce 1.4s infinite ease-in-out;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+
+    /* ── HOW IT WORKS ── */
+    .section-label {
+      text-align: center; font-size: 0.85rem; font-weight: 600;
+      color: var(--gradient-start); text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 12px;
+    }
+    .section-title {
+      text-align: center; font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 16px; line-height: 1.15;
+    }
+    .section-sub {
+      text-align: center; color: var(--text-secondary);
+      font-size: 1.05rem; max-width: 560px;
+      margin: 0 auto 64px; line-height: 1.6;
+    }
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .step-card:hover {
+      box-shadow: var(--card-shadow); transform: translateY(-4px);
+    }
+    .step-num {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: #fff; font-weight: 700; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .step-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+    .step-card p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.55; }
+
+    /* ── FEATURES ── */
+    .features-section { background: #f5f5f7; }
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 32px; display: flex; gap: 16px; align-items: flex-start;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .feature-card:hover {
+      box-shadow: var(--card-shadow); transform: translateY(-3px);
+    }
+    .feature-icon {
+      width: 48px; height: 48px; min-width: 48px;
+      background: linear-gradient(135deg, rgba(110,59,253,0.1), rgba(0,113,227,0.1));
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .feature-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.55; }
+
+    /* ── TESTIMONIAL ── */
+    .testimonial {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px; text-align: center;
+      max-width: 700px; margin: 0 auto;
+    }
+    .testimonial blockquote {
+      font-size: 1.2rem; font-weight: 400; line-height: 1.6;
+      color: var(--text-primary); margin-bottom: 24px;
+    }
+    .testimonial .author { font-size: 0.9rem; color: var(--text-secondary); }
+    .testimonial .author strong { color: var(--text-primary); }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px; max-width: 880px; margin: 0 auto;
+    }
+    .price-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px; text-align: center;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .price-card:hover {
+      box-shadow: var(--card-shadow); transform: translateY(-4px);
+    }
+    .price-card.popular {
+      border: 2px solid var(--accent);
+      position: relative;
+    }
+    .popular-tag {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff; padding: 4px 16px;
+      border-radius: 980px; font-size: 0.75rem; font-weight: 600;
+    }
+    .price-card h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
+    .price-amount {
+      font-size: 2.8rem; font-weight: 700; letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .price-amount span { font-size: 1rem; font-weight: 500; color: var(--text-secondary); }
+    .price-period { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .price-features { list-style: none; text-align: left; margin-bottom: 28px; }
+    .price-features li {
+      padding: 8px 0; font-size: 0.9rem; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .price-features li:last-child { border-bottom: none; }
+    .check { color: #34c759; font-weight: 700; }
+    .btn-price {
+      display: block; width: 100%; padding: 13px;
+      border-radius: 980px; font-size: 0.95rem; font-weight: 600;
+      text-decoration: none; text-align: center; cursor: pointer;
+      transition: background 0.2s, transform 0.2s; border: none;
+    }
+    .btn-price.primary { background: var(--accent); color: #fff; }
+    .btn-price.primary:hover { background: var(--accent-hover); }
+    .btn-price.outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+    .btn-price.outline:hover { background: rgba(0,113,227,0.06); }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      text-align: center; padding: 100px 24px 120px;
+      background: linear-gradient(180deg, #f5f5f7 0%, var(--bg) 100%);
+    }
+    .final-cta h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 700;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .final-cta p {
+      color: var(--text-secondary); font-size: 1.05rem;
+      max-width: 480px; margin: 0 auto 36px; line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+    }
+    .footer-inner {
+      max-width: 1040px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-inner p { font-size: 0.82rem; color: var(--text-secondary); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a {
+      font-size: 0.82rem; color: var(--text-secondary);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-primary); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      section { padding: 80px 16px; }
+      .hero { padding-top: 120px; padding-bottom: 60px; }
+      .phone { width: 240px; height: 480px; }
+      .nav-links a:not(.btn-nav) { display: none; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .testimonial { padding: 32px 24px; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="nav-inner">
+    <span class="logo">TambahAI</span>
+    <div class="nav-links">
+      <a href="#cara-kerja">Cara Kerja</a>
+      <a href="#fitur">Fitur</a>
+      <a href="#harga">Harga</a>
+      <a href="#" class="btn-nav">Mulai Gratis</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="container">
+    <div class="badge">🚀 Dibuat untuk bisnis Indonesia</div>
+    <h1>Ceritakan masalah bisnismu.<br><span class="grad">TambahAI buat solusinya.</span></h1>
+    <p>Kamu nggak perlu jadi ahli AI. Cukup bicara langsung — kami dengar, analisa, dan buatkan langkah konkret yang bisa langsung kamu jalankan.</p>
+    <div class="cta-group">
+      <a href="#" class="btn-primary">Mulai Ngobrol Sekarang →</a>
+      <a href="#cara-kerja" class="btn-secondary">Lihat Cara Kerja</a>
+    </div>
+    <!-- Phone Mockup -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="chat-header">
+            <div class="chat-avatar">TA</div>
+            <div>
+              <div class="chat-name">TambahAI</div>
+              <div class="chat-status">● Online</div>
+            </div>
+          </div>
+          <div class="msg msg-bot">
+            <div class="msg-bubble">Halo! 👋 Ada yang bisa saya bantu seputar bisnismu?</div>
+          </div>
+          <div class="msg msg-user">
+            <div class="msg-bubble">Penjualan toko offline saya turun 30% dalam 2 bulan terakhir. Gimana cara naikinnya lagi?</div>
+          </div>
+          <div class="msg msg-bot">
+            <div class="msg-bubble">Baik, saya paham. Berdasarkan kondisi ini, saya rekomendasikan 3 strategi utama...</div>
+          </div>
+          <div class="msg msg-bot">
+            <div class="typing"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section id="cara-kerja">
+  <div class="container">
+    <div class="section-label">Cara Kerja</div>
+    <h2 class="section-title">Semudah ngobrol dengan teman</h2>
+    <p class="section-sub">Nggak perlu setup ribet. Nggak perlu prompt engineering. Tinggal cerita — kami yang proses.</p>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Ceritakan Masalahmu</h3>
+        <p>Tulis atau ucapkan apa yang sedang kamu hadapi di bisnis. Bahasa sehari-haja pun oke — tanpa istilah teknis.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>TambahAI Analisa</h3>
+        <p>AI kami membaca konteks bisnismu, melihat pola, dan meriset pendekatan terbaik khusus untuk situasimu.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Dapat Rencana Aksi</h3>
+        <p>Kamu terima solusi terstruktur: langkah-langkah konkret, tools yang dipakai, estimasi biaya, dan timeline eksekusi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features-section" id="fitur">
+  <div class="container">
+    <div class="section-label">Fitur</div>
+    <h2 class="section-title">Kenapa pilih TambahAI?</h2>
+    <p class="section-sub">Kami fokus satu hal: membantu bisnis berkembang melalui kecerdasan buatan yang mudah diakses.</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <div>
+          <h3>Bicara Saja</h3>
+          <p>Gak perlu belajar sistem rumit. Tinggal curhat soal masalah bisnis — AI kami mengerti konteks bahasa Indonesia.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div>
+          <h3>Respon Instan</h3>
+          <p>Dalam hitungan detik, kamu sudah dapat analisis mendalam dan rencana aksi yang bisa langsung diterapkan.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div>
+          <h3>Solusi Spesifik</h3>
+          <p>Bukan jawaban generik. Setiap saran disesuaikan dengan ukuran bisnis, industri, dan anggaranmu.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div>
+          <h3>Berbasis Data</h3>
+          <p>Analisa kami mengacu pada tren pasar riil, best practice industri, dan data aktual agar rekomendasinya valid.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div>
+          <h3>Data Aman</h3>
+          <p>Informasi bisnismamu terjaga privasinya. Kami tidak menjual atau membagikan data percakapan-mu.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌱</div>
+        <div>
+          <h3>Ikut Bertumbuh</h3>
+          <p>Semakin lama kamu pakai, semakin cerdas AI kami mengenal bisnismu. Saran makin relevan dari waktu ke waktu.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIAL ═══ -->
+<section>
+  <div class="container">
+    <div class="section-label">Testimoni</div>
+    <h2 class="section-title">Mereka sudah merasakan manfaatnya</h2>
+    <p class="section-sub"></p>
+    <div style="margin-top: 48px;">
+      <div class="testimonial">
+        <blockquote>"Dulu saya bingung kenapa pelanggan nggak balik lagi. TambahAI kasih tau penyebabnya sekaligus strategi retenensi yang bisa langsung saya jalankan. Dalam sebulan, customer repeat purchase naik 40%."</blockquote>
+        <div class="author"><strong>Rina S.</strong> — Pemilik toko fashion online, Bandung</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="features-section" id="harga">
+  <div class="container">
+    <div class="section-label">Harga</div>
+    <h2 class="section-title">Pilih paket yang pas</h2>
+    <p class="section-sub">Mulai gratis, upgrade kapan saja sesuai kebutuhan bisnismu.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Pemula</h3>
+        <div class="price-amount"><span>Rp</span>0</div>
+        <div class="price-period">Gratis selamanya</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> 10 konsultasi / bulan</li>
+          <li><span class="check">✓</span> Solusi berbasis teks</li>
+          <li><span class="check">✓</span> Rangkuman & rekomendasi</li>
+          <li><span class="check">✓</span> Respon instan</li>
+        </ul>
+        <button class="btn-price outline">Mulai Gratis</button>
+      </div>
+      <div class="price-card popular">
+        <div class="popular-tag">Paling Populer</div>
+        <h3>Bisnis</h3>
+        <div class="price-amount"><span>Rp</span>149rb<span>/bln</span></div>
+        <div class="price-period">Hemat Rp1.788rb/tahun</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Konsultasi tanpa batas</li>
+          <li><span class="check">✓</span> Analisis mendalam + timeline</li>
+          <li><span class="check">✓</span> Template rencana aksi</li>
+          <li><span class="check">✓</span> Riwayat & tracking progres</li>
+          <li><span class="check">✓</span> Prioritas respon</li>
+        </ul>
+        <button class="btn-price primary">Coba 7 Hari Gratis</button>
+      </div>
+      <div class="price-card">
+        <h3>Enterprise</h3>
+        <div class="price-amount"><span>Custom</span></div>
+        <div class="price-period">Sesuai kebutuhan tim</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Semua fitur Bisnis</li>
+          <li><span class="check">✓</span> Multi-agen untuk tim</li>
+          <li><span class="check">✓</span> Integrasi CRM & tools</li>
+          <li><span class="check">✓</span> Dedicated support</li>
+          <li><span class="check">✓</span> Custom model AI</li>
+        </ul>
+        <button class="btn-price outline">Hubungi Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FINAL CTA ═══ -->
+<section class="final-cta">
+  <div class="container">
+    <h2>Siap tingkatkan bisnismu?</h2>
+    <p>Gak perlu mahal, gak perlu ribet. Mulai ceritAkam masalahmu sekarang — TambahAI siap membantu.</p>
+    <a href="#" class="btn-primary">Mulai Konsultasi Gratis →</a>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <p>© 2026 TambahAI. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">Kebijakan Privasi</a>
+      <a href="#">Syarat & Ketentuan</a>
+      <a href="#">Kontak</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
