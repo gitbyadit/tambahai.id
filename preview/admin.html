@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — TambahAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #fbfbfd; --surface: #ffffff; --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73; --accent: #0071e3; --grad-start: #6e3bfd; --grad-end: #0071e3;
+      --border: rgba(0,0,0,0.08); --radius: 16px; --green: #34c759; --orange: #ff9f0a; --red: #ff3b30;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+
+    /* TOP BAR */
+    .top-bar {
+      height: 52px; display: flex; align-items: center; gap: 12px;
+      padding: 0 16px; border-bottom: 1px solid var(--border);
+      background: rgba(251,251,253,0.85); backdrop-filter: saturate(180%) blur(20px); z-index: 100;
+      position: sticky; top: 0;
+    }
+    .back-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--accent); padding: 4px; font-family: inherit; }
+    .top-title h2 { font-size: 1rem; font-weight: 600; }
+    .top-title span { font-size: 0.72rem; color: var(--text-secondary); }
+    .role-badge { margin-left: auto; padding: 3px 10px; border-radius: 980px; font-size: 0.7rem; font-weight: 600; }
+    .role-admin { background: rgba(255,159,10,0.12); color: var(--orange); }
+
+    /* CONTENT */
+    .content { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    /* HEADER ROW */
+    .header-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .header-row h1 { font-size:1.3rem; font-weight:700; }
+    .header-row p { font-size:0.85rem; color:var(--text-secondary); }
+    .btn-add {
+      background:linear-gradient(135deg,var(--grad-start),var(--grad-end)); color:#fff;
+      border:none; padding:10px 20px; border-radius:12px; font-size:0.88rem; font-weight:600;
+      cursor:pointer; font-family:inherit; transition:opacity .2s,transform .2s; white-space:nowrap;
+    }
+    .btn-add:hover { opacity:.9; transform:translateY(-1px); }
+
+    /* SUMMARY */
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-bottom:24px; }
+    .sum-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 16px; text-align:center; }
+    .sum-num { font-size:1.6rem; font-weight:700; letter-spacing:-.02em; }
+    .sum-label { font-size:0.74rem; color:var(--text-secondary); }
+
+    /* TOOLBAR */
+    .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+    .search-box { flex:1; min-width:200px; position:relative; }
+    .search-box input {
+      width:100%; padding:11px 16px; border:1.5px solid var(--border); border-radius:12px;
+      font-size:.9rem; font-family:inherit; outline:none; background:var(--surface);
+    }
+    .search-box input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,113,227,.08); }
+    .role-filter select {
+      padding:11px 14px; border:1.5px solid var(--border); border-radius:12px;
+      font-size:.88rem; font-family:inherit; background:var(--surface); outline:none; cursor:pointer;
+    }
+
+    /* TABLE */
+    .table-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    table { width:100%; border-collapse:collapse; }
+    thead { background:#f5f5f7; }
+    th { text-align:left; padding:13px 16px; font-size:.75rem; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em; }
+    td { padding:13px 16px; border-top:1px solid var(--border); font-size:.88rem; vertical-align:middle; }
+    td.user-cell { display:flex; align-items:center; gap:10px; }
+    .avatar {
+      width:34px; height:34px; min-width:34px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.7rem; font-weight:700; color:#fff;
+    }
+    .avatar-purple{background:linear-gradient(135deg,var(--grad-start),var(--grad-end));}
+    .avatar-blue{background:var(--accent);}
+    .avatar-green{background:#34c759;}
+    .avatar-orange{background:#ff9500;}
+    .user-name { font-weight:600; display:block; }
+    .user-email { font-size:.75rem; color:var(--text-secondary); }
+
+    .role-pill { padding:3px 10px; border-radius:980px; font-size:.72rem; font-weight:600; white-space:nowrap; }
+    .pill-admin { background:rgba(255,159,10,.12); color:var(--orange); }
+    .pill-operator { background:rgba(0,113,227,.1); color:var(--accent); }
+    .pill-viewer { background:rgba(110,59,253,.1); color:var(--grad-start); }
+
+    .status-pill { padding:3px 10px; border-radius:980px; font-size:.72rem; font-weight:600; }
+    .st-active { background:rgba(52,199,89,.1); color:var(--green); }
+    .st-inactive { background:rgba(255,59,48,.08); color:var(--red); }
+
+    .action-btn {
+      background:none; border:1px solid var(--border); border-radius:8px; padding:4px 9px;
+      font-size:.75rem; color:var(--text-secondary); cursor:pointer; font-family:inherit; margin-right:4px;
+      transition:all .15s;
+    }
+    .action-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .action-btn.danger:hover { border-color:var(--red); color:var(--red); }
+
+    /* EMPTY/ROLE LOCK */
+    .empty-state { text-align:center; padding:60px 24px; color:var(--text-secondary); }
+    .empty-state .icon { font-size:3rem; margin-bottom:12px; }
+    .empty-state p { font-size:.92rem; }
+    .empty-state .lock-btn {
+      margin-top:18px; background:var(--accent); color:#fff; border:none;
+      padding:12px 26px; border-radius:12px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:inherit;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200;
+      display:none; align-items:center; justify-content:center; padding:20px;
+      backdrop-filter:blur(4px);
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--surface); border-radius:var(--radius); width:100%; max-width:440px;
+      padding:32px; animation:fadeUp .25s ease;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .modal h3 { font-size:1.15rem; font-weight:700; margin-bottom:4px; }
+    .modal .modal-sub { font-size:.85rem; color:var(--text-secondary); margin-bottom:22px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
+    .form-group input,.form-group select {
+      width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
+      font-size:.9rem; font-family:inherit; outline:none; background:var(--bg);
+    }
+    .form-group input:focus,.form-group select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,113,227,.08); }
+    .modal-actions { display:flex; gap:10px; margin-top:22px; }
+    .modal-actions button {
+      flex:1; padding:13px; border-radius:10px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:inherit;
+      transition:opacity .15s;
+    }
+    .btn-cancel { background:#f2f2f7; color:var(--text-primary); border:none; }
+    .btn-cancel:hover { opacity:.8; }
+    .btn-save { background:linear-gradient(135deg,var(--grad-start),var(--grad-end)); color:#fff; border:none; }
+    .btn-save:hover { opacity:.9; }
+
+    @media(max-width:560px){
+      thead { display:none; }
+      table, tbody, tr, td { display:block; width:100%; }
+      tr { padding:12px 0; border-top:1px solid var(--border); }
+      tr:first-child{border-top:none;}
+      td { border:none; padding:4px 16px; }
+      td.user-cell{ padding-top:8px; }
+      .summary{grid-template-columns:repeat(2,1fr);}
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" onclick="window.history.back()">←</button>
+  <div class="top-title">
+    <h2>Admin Panel</h2>
+    <span>Manajemen pengguna & role</span>
+  </div>
+  <span class="role-badge role-admin" id="roleBadge"></span>
+</div>
+
+<div class="content" id="pageContent">
+  <!-- rendered by JS (role-locked or full) -->
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Tambah Pengguna</h3>
+    <p class="modal-sub" id="modalSub">Isi detail pengguna baru</p>
+    <form id="userForm">
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="fName" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="fEmail" required>
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select id="fRole">
+          <option value="admin">Admin</option>
+          <option value="operator" selected>Operator</option>
+          <option value="viewer">Viewer</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="fStatus">
+          <option value="active" selected>Aktif</option>
+          <option value="inactive">Nonaktif</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn-save">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ── AUTH ──
+  const user = JSON.parse(localStorage.getItem('tambahai_user') || '{}');
+  const badge = document.getElementById('roleBadge');
+
+  // ── DATA ──
+  let users = [
+    { id:1, name:'Adit Maulana', email:'adit@tambah.ai', role:'admin', status:'active' },
+    { id:2, name:'Rina Safitri', email:'rina@tambah.ai', role:'operator', status:'active' },
+    { id:3, name:'Budiman H.', email:'budiman@tambah.ai', role:'operator', status:'active' },
+    { id:4, name:'Sari Wulandari', email:'sari@tambah.ai', role:'viewer', status:'active' },
+    { id:5, name:'Deni Kurniawan', email:'deni@tambah.ai', role:'viewer', status:'inactive' },
+    { id:6, name:'Maya Puspita', email:'maya@tambah.ai', role:'operator', status:'active' },
+  ];
+
+  const avatarColors = { admin:'avatar-orange', operator:'avatar-blue', viewer:'avatar-purple' };
+  let editingId = null;
+
+  function roleLabel(r){ return r.charAt(0).toUpperCase() + r.slice(1); }
+  function initials(name){
+    return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  }
+
+  // ── RENDER ──
+  function renderContent(){
+    const content = document.getElementById('pageContent');
+
+    // Role lock: admin only
+    if (user.role !== 'admin') {
+      content.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔒</div>
+          <h2 style="font-size:1.2rem;margin-bottom:6px;">Akses dibatasi</h2>
+          <p>Halaman ini hanya bisa diakses oleh pengguna dengan role <strong>Admin</strong>.<br>
+          Role kamu saat ini: <strong>${user.role || 'guest'}</strong></p>
+          <button class="lock-btn" onclick="window.location.href='dashboard.html'">Kembali ke Dashboard</button>
+        </div>`;
+      badge.textContent = user.role ? roleLabel(user.role) : 'Guest';
+      badge.className = 'role-badge ' + (user.role === 'admin' ? 'role-admin' : '');
+      return;
+    }
+
+    badge.textContent = 'Admin';
+    badge.className = 'role-badge role-admin';
+
+    const adminCount = users.filter(u=>u.role==='admin').length;
+    const opCount = users.filter(u=>u.role==='operator').length;
+    const viewCount = users.filter(u=>u.role==='viewer').length;
+    const activeCount = users.filter(u=>u.status==='active').length;
+
+    content.innerHTML = `
+      <div class="header-row">
+        <div>
+          <h1>Kelola Pengguna</h1>
+          <p>Total <strong>${users.length}</strong> pengguna terdaftar</p>
+        </div>
+        <button class="btn-add" onclick="openModal()">+ Tambah Pengguna</button>
+      </div>
+
+      <div class="summary">
+        <div class="sum-card"><div class="sum-num" style="color:var(--orange)">${adminCount}</div><div class="sum-label">Admin</div></div>
+        <div class="sum-card"><div class="sum-num" style="color:var(--accent)">${opCount}</div><div class="sum-label">Operator</div></div>
+        <div class="sum-card"><div class="sum-num" style="color:var(--grad-start)">${viewCount}</div><div class="sum-label">Viewer</div></div>
+        <div class="sum-card"><div class="sum-num" style="color:var(--green)">${activeCount}</div><div class="sum-label">Aktif</div></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Cari nama atau email..." oninput="renderTable()">
+        </div>
+        <div class="role-filter">
+          <select id="roleFilter" onchange="renderTable()">
+            <option value="all">Semua Role</option>
+            <option value="admin">Admin</option>
+            <option value="operator">Operator</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-card" id="tableWrap"></div>`;
+
+    renderTable();
+  }
+
+  function renderTable(){
+    const wrap = document.getElementById('tableWrap');
+    if (!wrap) return;
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    const rf = document.getElementById('roleFilter')?.value || 'all';
+
+    let filtered = users.filter(u => {
+      const matchQ = u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+      const matchR = rf === 'all' || u.role === rf;
+      return matchQ && matchR;
+    });
+
+    if (filtered.length === 0) {
+      wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Tidak ada user yang cocok dengan filter.</p></div>`;
+      return;
+    }
+
+    let rows = '';
+    filtered.forEach(u => {
+      const statusCls = u.status === 'active' ? 'st-active' : 'st-inactive';
+      const statusTxt = u.status === 'active' ? 'Aktif' : 'Nonaktif';
+      rows += `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="avatar ${avatarColors[u.role]}">${initials(u.name)}</div>
+              <div>
+                <span class="user-name">${u.name}</span>
+                <span class="user-email">${u.email}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="role-pill pill-${u.role}">${roleLabel(u.role)}</span></td>
+          <td><span class="status-pill ${statusCls}">${statusTxt}</span></td>
+          <td style="text-align:right;white-space:nowrap;">
+            <button class="action-btn" onclick='editUser(${u.id})'>✏️ Edit</button>
+            <button class="action-btn danger" onclick='toggleUser(${u.id})'>${u.status==='active'?'⛔':'✅'}</button>
+          </td>
+        </tr>`;
+    });
+
+    wrap.innerHTML = `
+      <table>
+        <thead><tr><th>Pengguna</th><th>Role</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // ── MODAL ──
+  function openModal(){
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Tambah Pengguna';
+    document.getElementById('modalSub').textContent = 'Isi detail pengguna baru';
+    document.getElementById('fName').value = '';
+    document.getElementById('fEmail').value = '';
+    document.getElementById('fRole').value = 'operator';
+    document.getElementById('fStatus').value = 'active';
+    document.getElementById('modalOverlay').classList.add('open');
+    document.getElementById('fName').focus();
+  }
+
+  function editUser(id){
+    const u = users.find(x=>x.id===id);
+    if (!u) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Pengguna';
+    document.getElementById('modalSub').textContent = 'Ubah detail pengguna ' + u.name;
+    document.getElementById('fName').value = u.name;
+    document.getElementById('fEmail').value = u.email;
+    document.getElementById('fRole').value = u.role;
+    document.getElementById('fStatus').value = u.status;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal(){
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function toggleUser(id){
+    const u = users.find(x=>x.id===id);
+    if (u) { u.status = u.status === 'active' ? 'inactive' : 'active'; }
+    renderContent();
+  }
+
+  // Submit form
+  document.getElementById('userForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('fName').value.trim();
+    const email = document.getElementById('fEmail').value.trim();
+    const role = document.getElementById('fRole').value;
+    const status = document.getElementById('fStatus').value;
+
+    if (editingId) {
+      const u = users.find(x=>x.id===editingId);
+      if (u) { u.name=name; u.email=email; u.role=role; u.status=status; }
+    } else {
+      users.push({ id: Date.now(), name, email, role, status });
+    }
+    closeModal();
+    renderContent();
+  });
+
+  // Close on overlay click
+  document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  // ── INIT ──
+  renderContent();
+</script>
+
+</body>
+</html>

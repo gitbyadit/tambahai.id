@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisa Bisnis — TambahAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #fbfbfd; --surface: #ffffff; --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73; --accent: #0071e3; --grad-start: #6e3bfd; --grad-end: #0071e3;
+      --border: rgba(0,0,0,0.08); --radius: 16px; --green: #34c759; --orange: #ff9f0a; --red: #ff3b30;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+
+    .top-bar {
+      height: 52px; display: flex; align-items: center; gap: 12px;
+      padding: 0 16px; border-bottom: 1px solid var(--border);
+      background: rgba(251,251,253,0.85); backdrop-filter: saturate(180%) blur(20px); z-index: 100;
+      position: sticky; top: 0;
+    }
+    .back-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--accent); padding: 4px; font-family: inherit; }
+    .top-title h2 { font-size: 1rem; font-weight: 600; }
+    .top-title span { font-size: 0.72rem; color: var(--text-secondary); }
+    .role-badge { margin-left: auto; padding: 3px 10px; border-radius: 980px; font-size: 0.7rem; font-weight: 600; }
+
+    .content { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    /* RANGE SELECTOR */
+    .range-bar { display:flex; gap:8px; margin-bottom:24px; overflow-x:auto; }
+    .range-chip { padding:8px 18px; border-radius:980px; font-size:.84rem; font-weight:500; border:1.5px solid var(--border); background:var(--surface); color:var(--text-secondary); cursor:pointer; white-space:nowrap; font-family:inherit; transition:all .2s; }
+    .range-chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+    /* KPI CARDS */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+    .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px 18px; }
+    .kpi-label { font-size:.75rem; color:var(--text-secondary); margin-bottom:6px; }
+    .kpi-value { font-size:1.6rem; font-weight:700; letter-spacing:-.02em; }
+    .kpi-delta { font-size:.78rem; font-weight:600; margin-top:4px; }
+    .delta-up { color:var(--green); }
+    .delta-down { color:var(--red); }
+
+    /* CHART CONTAINERS */
+    .chart-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+    .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
+    .chart-title { font-size:.92rem; font-weight:600; margin-bottom:16px; }
+
+    /* BAR CHART */
+    .bar-chart { display:flex; align-items:flex-end; gap:8px; height:160px; padding-top:10px; }
+    .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; }
+    .bar { width:100%; max-width:42px; border-radius:8px 8px 0 0; background:linear-gradient(135deg,var(--grad-start),var(--grad-end)); transition:height .5s ease; position:relative; }
+    .bar.muted { background:#e5e5ea; }
+    .bar-val { font-size:.68rem; color:var(--text-secondary); font-weight:600; }
+    .bar-label { font-size:.72rem; color:var(--text-secondary); margin-top:auto; }
+
+    /* DONUT (CSS) */
+    .donut-wrap { display:flex; align-items:center; gap:24px; }
+    .donut {
+      width:140px;height:140px;border-radius:50%;min-width:140px;
+      background:conic-gradient(var(--grad-start) 0 45%, var(--accent) 45% 70%, #ff9f0a 70% 88%, #34c759 88% 100%);
+      position:relative;
+    }
+    .donut::after {
+      content:''; position:absolute; inset:18px; border-radius:50%; background:var(--surface);
+    }
+    .donut-center {
+      position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      z-index:1; font-size:1.1rem; font-weight:700;
+    }
+    .donut-center span { font-size:.62rem; font-weight:500; color:var(--text-secondary); }
+    .legend { flex:1; display:flex; flex-direction:column; gap:10px; }
+    .legend-item { display:flex; align-items:center; gap:10px; font-size:.84rem; }
+    .legend-dot { width:12px; height:12px; border-radius:4px; }
+    .legend-item .pct { margin-left:auto; font-weight:600; color:var(--text-secondary); }
+
+    /* INSIGHT LIST */
+    .insight-section { margin-bottom:24px; }
+    .insight-section h3 { font-size:1rem; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .insight-list { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .insight-item { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; gap:14px; }
+    .insight-item:last-child { border-bottom:none; }
+    .insight-icon { width:38px; height:38px; min-width:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+    .insight-item h4 { font-size:.9rem; font-weight:600; margin-bottom:3px; }
+    .insight-item p { font-size:.82rem; color:var(--text-secondary); line-height:1.5; }
+    .insight-chip { margin-left:auto; align-self:flex-start; padding:3px 10px; border-radius:980px; font-size:.68rem; font-weight:600; white-space:nowrap; }
+    .chip-high { background:rgba(52,199,89,.1); color:var(--green); }
+    .chip-mid { background:rgba(255,159,10,.1); color:var(--orange); }
+    .chip-low { background:rgba(255,59,48,.08); color:var(--red); }
+
+    /* ROLE LOCK */
+    .empty-state { text-align:center; padding:60px 24px; color:var(--text-secondary); }
+    .empty-state .icon { font-size:3rem; margin-bottom:12px; }
+    .empty-state p { font-size:.92rem; }
+    .empty-state .lock-btn { margin-top:18px; background:var(--accent); color:#fff; border:none; padding:12px 26px; border-radius:12px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:inherit; }
+
+    @media(max-width:640px){
+      .chart-row{grid-template-columns:1fr;}
+      .donut-wrap{flex-direction:column;align-items:flex-start;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" onclick="window.history.back()">←</button>
+  <div class="top-title">
+    <h2>Laporan Analisa Bisnis</h2>
+    <span>Generated by TambahAI</span>
+  </div>
+  <span class="role-badge" id="roleBadge"></span>
+</div>
+
+<div class="content" id="pageContent">
+  <!-- rendered by JS -->
+</div>
+
+<script>
+  // ── AUTH ──
+  const user = JSON.parse(localStorage.getItem('tambahai_user') || '{}');
+  if (!user.name) { window.location.href = 'login.html'; }
+  const badge = document.getElementById('roleBadge');
+  const roleLabels = { admin:'Admin', operator:'Operator', viewer:'Viewer' };
+  const roleColors = { admin:'rgba(255,159,10,.12)', operator:'rgba(0,113,227,.1)', viewer:'rgba(110,59,253,.1)' };
+  const roleText = { admin:'#ff9f0a', operator:'#0071e3', viewer:'#6e3bfd' };
+  const role = user.role || 'viewer';
+  badge.textContent = roleLabels[role];
+  badge.style.background = roleColors[role];
+  badge.style.color = roleText[role];
+
+  // ── DATA PER RANGE ──
+  const data = {
+    '30hari': {
+      kpi: [
+        { label:'Total Omzet', value:'Rp 84,2jt', delta:'+12.4%', up:true },
+        { label:'Transaksi', value:'1.240', delta:'+8.1%', up:true },
+        { label:'Customer Baru', value:'186', delta:'+15.3%', up:true },
+        { label:'Repeat Rate', value:'38%', delta:'+4.2%', up:true },
+      ],
+      bars: { labels:['W1','W2','W3','W4'], vals:[18,24,21,28] },
+      donut: [45,25,18,12],
+      insight: [
+        { icon:'📈', t:'Penjualan Terus Naik', d:'Omzet minggu ke-4 naik 33% dari minggu pertama. Tren positif konsisten di semua segmen.', chip:'Tinggi', cls:'chip-high' },
+        { icon:'🛒', t:'Jam Sibuk Perlengkapan', d:'Transaksi tertinggi terjadi pukul 16.00-19.00 WIB, terutama di hari Sabtu.', chip:'Tinggi', cls:'chip-high' },
+        { icon:'📍', t:'Pelanggan Ulang Meningkat', d:'Repeat purchase naik 4.2% — strategi loyalitas program mulai bekerja.', chip:'Sedang', cls:'chip-mid' },
+        { icon:'⚠️', t:'Rekomendasi: Sedia Stok', d:'Antisipasi permintaan tinggi akhir bulan dengan stok ekstra 15% pada produk terlaris.', chip:'Sedang', cls:'chip-mid' },
+      ]
+    },
+    '3bulan': {
+      kpi: [
+        { label:'Total Omzet', value:'Rp 241jt', delta:'+9.8%', up:true },
+        { label:'Transaksi', value:'3.580', delta:'+6.4%', up:true },
+        { label:'Customer Baru', value:'512', delta:'+11.7%', up:true },
+        { label:'Repeat Rate', value:'35%', delta:'+2.8%', up:true },
+      ],
+      bars: { labels:['B1','B2','B3'], vals:[30,40,52] },
+      donut: [50,22,15,13],
+      insight: [
+        { icon:'📈', t:'Pertumbuhan Stabil', d:'Omzet naik 9.8% dibanding kuartal sebelumnya. Pertumbuhan paling kuat di segmen online.', chip:'Tinggi', cls:'chip-high' },
+        { icon:'💡', t:'Kanal Online Menyumbang 45%', d:'Penjualan online hampir setengah dari total — layak ditingkatkan budget iklan digital.', chip:'Tinggi', cls:'chip-high' },
+        { icon:'🛠️', t:'Biaya Operasional Naik 5%', d:'Perhatikan efisiensi operasional. Pertimbangkan negosiasi ulang dengan supplier.', chip:'Sedang', cls:'chip-mid' },
+      ]
+    },
+    '1tahun': {
+      kpi: [
+        { label:'Total Omzet', value:'Rp 992jt', delta:'+21.6%', up:true },
+        { label:'Transaksi', value:'14.800', delta:'+18.2%', up:true },
+        { label:'Customer Baru', value:'2.340', delta:'+24.5%', up:true },
+        { label:'Repeat Rate', value:'41%', delta:'+6.9%', up:true },
+      ],
+      bars: { labels:['K1','K2','K3','K4'], vals:[40,52,60,78] },
+      donut: [52,20,17,11],
+      insight: [
+        { icon:'🚀', t:'Pertumbuhan Tahunan Solid', d:'Tumbuh 21.6% YoY — di atas rata-rata industri sejenis (+14%).', chip:'Tinggi', cls:'chip-high' },
+        { icon:'📱', t:'Channel Online Dominan', d:'E-commerce kini 52% dari total omzet. Investasi digital membuahkan hasil.', chip:'Tinggi', cls:'chip-high' },
+        { icon:'🎯', t:'Loyalti Terjaga', d:'Repeat rate 41% menunjukkan pelanggan setia. Pertahankan program loyalitas.', chip:'Tinggi', cls:'chip-high' },
+        { icon:'⚠️', t:'Perlu Diversifikasi Supplier', d:'Terlalu bergantung pada 1-2 supplier besar. Disarankan punya alternatif untuk mitigasi risiko.', chip:'Sedang', cls:'chip-mid' },
+        { icon:'🔄', t:'Musiman di Akhir Tahun', d:'Omzet Q4 melonjak 30%. Siapkan stok & promo lebih awal untuk kapitalisasi.', chip:'Rendah', cls:'chip-low' },
+      ]
+    }
+  };
+
+  // ── RENDER ──
+  const content = document.getElementById('pageContent');
+
+  function renderReport(range){
+    const d = data[range];
+
+    // KPI HTML
+    const kpiHTML = d.kpi.map(k => `
+      <div class="kpi-card">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value">${k.value}</div>
+        <div class="kpi-delta ${k.up?'delta-up':'delta-down'}">${k.up?'▲':'▼'} ${k.delta}</div>
+      </div>`).join('');
+
+    // BAR CHART HTML
+    const maxVal = Math.max(...d.bars.vals);
+    const total = d.bars.vals.reduce((a,b)=>a+b,0);
+    const barHTML = d.bars.labels.map((lab,i) => {
+      const h = (d.bars.vals[i]/maxVal)*100;
+      const isLast = i === d.bars.vals.length-1;
+      const pct = total ? Math.round((d.bars.vals[i]/total)*100) : 0;
+      return `
+        <div class="bar-col">
+          <span class="bar-val">${pct}%</span>
+          <div class="bar ${isLast?'':'muted'}" style="height:${h}%"></div>
+          <span class="bar-label">${lab}</span>
+        </div>`;
+    }).join('');
+
+    // DONUT
+    const donutColors = [
+      {c:'var(--grad-start)', n:'Online', pct:d.donut[0], cls:'#6e3bfd'},
+      {c:'var(--accent)', n:'Offline', pct:d.donut[1], cls:'#0071e3'},
+      {c:'var(--orange)', n:'Marketplace', pct:d.donut[2], cls:'#ff9f0a'},
+      {c:'var(--green)', n:'Lainnya', pct:d.donut[3], cls:'#34c759'},
+    ];
+    let acc = 0;
+    let cone = donutColors.map((k,i)=>{
+      const start = acc; acc += k.pct; const end = acc;
+      const prev = i===0?0:donutColors.slice(0,i).reduce((a,x)=>a+x.pct,0);
+      return `${k.c} ${prev}% ${prev+k.pct}%`;
+    }).join(', ');
+    const donutHTML = `
+      <div class="donut" style="background:conic-gradient(${cone})">
+        <div class="donut-center">${d.kpi[2].value.split(' ')[0]}<span>total kustomer</span></div>
+      </div>
+      <div class="legend">
+        ${donutColors.map(k=>`
+          <div class="legend-item">
+            <span class="legend-dot" style="background:${k.cls}"></span>
+            <span>${k.n}</span>
+            <span class="pct">${k.pct}%</span>
+          </div>`).join('')}
+      </div>`;
+
+    // INSIGHT
+    const insightHTML = d.insight.map(ins => `
+      <div class="insight-item">
+        <div class="insight-icon" style="background:rgba(0,113,227,.08)">${ins.icon}</div>
+        <div style="flex:1;">
+          <h4>${ins.t}</h4>
+          <p>${ins.d}</p>
+        </div>
+        <span class="insight-chip ${ins.cls}">${ins.chip}</span>
+      </div>`).join('');
+
+    content.innerHTML = `
+      <div class="range-bar">
+        <button class="range-chip ${range==='30hari'?'active':''}" onclick="setRange('30hari')">30 Hari</button>
+        <button class="range-chip ${range==='3bulan'?'active':''}" onclick="setRange('3bulan')">3 Bulan</button>
+        <button class="range-chip ${range==='1tahun'?'active':''}" onclick="setRange('1tahun')">1 Tahun</button>
+      </div>
+
+      <div class="kpi-grid">${kpiHTML}</div>
+
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-title">Pertumbuhan Omzet per Periode</div>
+          <div class="bar-chart">${barHTML}</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Distribusi Channel Penjualan</div>
+          <div class="donut-wrap">${donutHTML}</div>
+        </div>
+      </div>
+
+      <div class="insight-section">
+        <h3>🤖 Insight & Rekomendasi</h3>
+        <div class="insight-list">${insightHTML}</div>
+      </div>`;
+  }
+
+  function setRange(range){ renderReport(range); }
+
+  // ROLE LOCK for viewer: only summary
+  if (role === 'viewer') {
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔒</div>
+        <h2 style="font-size:1.2rem;margin-bottom:6px;">Laporan terbatas</h2>
+        <p>Role <strong>Viewer</strong> hanya bisa melihat ringkasan.<br>Hubungi admin untuk akses penuh laporan analisa.</p>
+        <button class="lock-btn" onclick="window.location.href='dashboard.html'">Kembali ke Dashboard</button>
+      </div>`;
+  } else {
+    renderReport('30hari');
+  }
+</script>
+
+</body>
+</html>

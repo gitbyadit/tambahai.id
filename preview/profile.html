@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Saya — TambahAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #fbfbfd; --surface: #ffffff; --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73; --accent: #0071e3; --grad-start: #6e3bfd; --grad-end: #0071e3;
+      --border: rgba(0,0,0,0.08); --radius: 16px; --green: #34c759; --red: #ff3b30;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+
+    .top-bar {
+      height: 52px; display: flex; align-items: center; gap: 12px;
+      padding: 0 16px; border-bottom: 1px solid var(--border);
+      background: rgba(251,251,253,0.85); backdrop-filter: saturate(180%) blur(20px); z-index: 100;
+      position: sticky; top: 0;
+    }
+    .back-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--accent); padding: 4px; font-family: inherit; }
+    .top-title h2 { font-size: 1rem; font-weight: 600; }
+    .role-badge { margin-left: auto; padding: 3px 10px; border-radius: 980px; font-size: 0.7rem; font-weight: 600; }
+
+    .content { max-width: 640px; margin: 0 auto; padding: 28px 16px 60px; }
+
+    /* PROFILE HEADER */
+    .profile-head {
+      text-align:center; margin-bottom:32px;
+    }
+    .avatar-large {
+      width:88px;height:88px;border-radius:50%;margin:0 auto 16px;position:relative;
+      background:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:2rem;font-weight:700;
+    }
+    .avatar-edit {
+      position:absolute;bottom:2px;right:2px;width:32px;height:32px;border-radius:50%;
+      background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-size:.85rem;
+    }
+    .avatar-large h1 { }
+    #profileName { font-size:1.5rem;font-weight:700;letter-spacing:-.02em; }
+    .profile-email { font-size:.9rem;color:var(--text-secondary);margin-top:2px; }
+    .role-pill { display:inline-block;margin-top:10px;padding:4px 14px;border-radius:980px;font-size:.75rem;font-weight:600; }
+
+    /* CARDS */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px; margin-bottom:20px; }
+    .card-title { font-size:1.05rem; font-weight:600; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-group { margin-bottom:16px; }
+    .form-group.full { grid-column:1/-1; }
+    .form-group label { display:block; font-size:.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
+    .form-group input,.form-group select {
+      width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
+      font-size:.9rem; font-family:inherit; outline:none; background:var(--bg);
+    }
+    .form-group input:focus,.form-group select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,113,227,.08); }
+
+    .btn-save {
+      background:var(--accent); color:#fff; border:none; padding:13px 28px; border-radius:12px;
+      font-size:.92rem; font-weight:600; cursor:pointer; font-family:inherit; transition:opacity .2s,transform .2s;
+    }
+    .btn-save:hover { opacity:.9; transform:translateY(-1px); }
+
+    /* TOGGLE LIST */
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border); }
+    .toggle-row:last-child { border-bottom:none; padding-bottom:0; }
+    .toggle-info h4 { font-size:.9rem; font-weight:500; }
+    .toggle-info p { font-size:.78rem; color:var(--text-secondary); }
+    .switch { position:relative; width:50px; height:28px; background:#e5e5ea; border-radius:980px; cursor:pointer; transition:background .2s; }
+    .switch.active { background:var(--green); }
+    .switch::after {
+      content:''; position:absolute; top:3px; left:3px; width:22px; height:22px;
+      background:#fff; border-radius:50%; transition:transform .2s;
+      box-shadow:0 1px 3px rgba(0,0,0,.2);
+    }
+    .switch.active::after { transform:translateX(22px); }
+
+    /* DANGER ZONE */
+    .danger-zone { border-color:rgba(255,59,48,.2); }
+    .danger-title { color:var(--red); }
+    .btn-danger {
+      background:none; color:var(--red); border:1.5px solid var(--red); padding:11px 20px;
+      border-radius:10px; font-size:.88rem; font-weight:600; cursor:pointer; font-family:inherit;
+      transition:background .2s;
+    }
+    .btn-danger:hover { background:rgba(255,59,48,.06); }
+
+    /* TOAST */
+    .toast {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px);
+      background:#1d1d1f; color:#fff; padding:13px 24px; border-radius:12px; font-size:.88rem;
+      z-index:300; transition:transform .3s; opacity:0; pointer-events:none;
+    }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+    @media(max-width:480px){ .form-row{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" onclick="window.history.back()">←</button>
+  <div class="top-title"><h2>Profil Saya</h2></div>
+  <span class="role-badge" id="roleBadge"></span>
+</div>
+
+<div class="content">
+  <!-- PROFILE HEADER -->
+  <div class="profile-head">
+    <div class="avatar-large">
+      <span id="avatarInitials">?</span>
+      <div class="avatar-edit" title="Ubah foto" onclick="bumpAvatar()">📷</div>
+    </div>
+    <div id="profileName">—</div>
+    <div class="profile-email" id="profileEmail">—</div>
+    <div><span class="role-pill" id="profileRole">—</span></div>
+  </div>
+
+  <!-- INFO PRIBADI -->
+  <div class="card">
+    <div class="card-title">👤 Informasi Pribadi</div>
+    <form id="infoForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="infoName" required>
+        </div>
+        <div class="form-group">
+          <label>No. HP</label>
+          <input type="tel" id="infoPhone" placeholder="08xxxxxxxxxx">
+        </div>
+        <div class="form-group full">
+          <label>Email</label>
+          <input type="email" id="infoEmail" required>
+        </div>
+        <div class="form-group full">
+          <label>Bidang Bisnis</label>
+          <select id="infoBiz">
+            <option value="">Pilih bidang bisnis...</option>
+            <option>F&B / Kuliner</option>
+            <option>Fashion / Retail</option>
+            <option>Jasa / Service</option>
+            <option>E-commerce / Online</option>
+            <option>Manufaktur</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-save">Simpan Perubahan</button>
+    </form>
+  </div>
+
+  <!-- KEAMANAN -->
+  <div class="card">
+    <div class="card-title">🔒 Keamanan</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>Verifikasi Dua Langkah</h4>
+        <p>Lindungi akun dengan kode OTP tambahan</p>
+      </div>
+      <div class="switch" id="2faToggle" onclick="toggleSwitch('2faToggle')"></div>
+    </div>
+    <div style="height:16px;"></div>
+    <button class="btn-danger" style="width:100%;" onclick="resetPassword()">🔑 Ganti Password</button>
+  </div>
+
+  <!-- NOTIFIKASI -->
+  <div class="card">
+    <div class="card-title">🔔 Notifikasi</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>Notifikasi Email</h4>
+        <p>Ringkasan konsultasi terbaru via email</p>
+      </div>
+      <div class="switch active" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>Notifikasi Solusi Selesai</h4>
+        <p>Info ketika solusi AI sudah siap</p>
+      </div>
+      <div class="switch active" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>Tips Bisnis Mingguan</h4>
+        <p>Tips & insight dari TambahAI tiap minggu</p>
+      </div>
+      <div class="switch" onclick="toggleSwitch(this)"></div>
+    </div>
+  </div>
+
+  <!-- DANGER ZONE -->
+  <div class="card danger-zone">
+    <div class="card-title danger-title">⚠️ Zona Berbahaya</div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Hapus akun secara permanen</label>
+      <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:14px;">Tindakan ini tidak bisa dibatalkan. Semua data konsultasi akan dihapus.</p>
+    </div>
+    <button class="btn-danger" onclick="confirmDelete()">Hapus Akun</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Tersimpan ✓</div>
+
+<script>
+  // ── AUTH ──
+  const user = JSON.parse(localStorage.getItem('tambahai_user') || '{}');
+  if (!user.name) { window.location.href = 'login.html'; }
+  const badge = document.getElementById('roleBadge');
+  const roleLabels = { admin:'Admin', operator:'Operator', viewer:'Viewer' };
+  const roleColors = { admin:'rgba(255,159,10,.12)', operator:'rgba(0,113,227,.1)', viewer:'rgba(110,59,253,.1)' };
+  const roleTextColors = { admin:'#ff9f0a', operator:'#0071e3', viewer:'#6e3bfd' };
+
+  function fillProfile(){
+    document.getElementById('profileName').textContent = user.name || 'Pengguna';
+    document.getElementById('profileEmail').textContent = user.email || '—';
+    document.getElementById('avatarInitials').textContent =
+      (user.name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const role = user.role || 'viewer';
+    const pill = document.getElementById('profileRole');
+    pill.textContent = roleLabels[role];
+    pill.style.background = roleColors[role];
+    pill.style.color = roleTextColors[role];
+
+    badge.textContent = roleLabels[role];
+    badge.style.background = roleColors[role];
+    badge.style.color = roleTextColors[role];
+
+    document.getElementById('infoName').value = user.name || '';
+    document.getElementById('infoEmail').value = user.email || '';
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  function toggleSwitch(el){
+    if (typeof el === 'string') el = document.getElementById(el);
+    if (el.classList.contains('active')) { el.classList.remove('active'); }
+    else { el.classList.add('active'); }
+  }
+
+  function bumpAvatar(){ showToast('Fitur upload foto segera hadir 📷'); }
+
+  function resetPassword(){ showToast('Link reset password dikirim ke email 🔑'); }
+
+  function confirmDelete(){
+    if (confirm('Yakin ingin menghapus akun secara permanen? Semua data akan hilang.')) {
+      localStorage.removeItem('tambahai_user');
+      localStorage.removeItem('tambahai_token');
+      showToast('Akun dihapus. Mengalihkan...');
+      setTimeout(()=>window.location.href='../index.html', 1400);
+    }
+  }
+
+  document.getElementById('infoForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    user.name = document.getElementById('infoName').value;
+    user.email = document.getElementById('infoEmail').value;
+    user.phone = document.getElementById('infoPhone').value;
+    user.biz = document.getElementById('infoBiz').value;
+    localStorage.setItem('tambahai_user', JSON.stringify(user));
+    fillProfile();
+    showToast('Perubahan tersimpan ✓');
+  });
+
+  fillProfile();
+</script>
+
+</body>
+</html>

@@ -26,6 +26,12 @@
       background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .user-info { display: flex; align-items: center; gap: 12px; }
+    .nav-extra {
+      font-size: 0.8rem; font-weight:500; color: var(--text-secondary) !important;
+      text-decoration: none; background:none; border:1px solid var(--border);
+      padding: 5px 14px; border-radius: 980px; cursor:pointer; transition:all .2s;
+    }
+    .nav-extra:hover { border-color: var(--accent); color: var(--accent) !important; }
     .user-name { font-size: 0.85rem; font-weight: 500; }
     .role-badge {
       padding: 3px 10px; border-radius: 980px; font-size: 0.7rem; font-weight: 600;
@@ -111,6 +117,8 @@
 <div class="top-bar">
   <a href="index.html" class="logo">TambahAI</a>
   <div class="user-info">
+    <a href="report.html" class="nav-extra">📈 Laporan</a>
+    <a href="profile.html" class="nav-extra">👤 Profil</a>
     <span class="user-name" id="userName"></span>
     <span class="role-badge" id="roleBadge"></span>
     <button class="btn-logout" onclick="handleLogout()">Keluar</button>
@@ -159,10 +167,10 @@
         <h3>Riwayat Konsultasi</h3>
         <p>Lihat semua solusi yang sudah didapat</p>
       </a>
-      <a href="#" class="quick-card">
+      <a href="report.html" class="quick-card">
         <div class="quick-icon">📊</div>
         <h3>Analisa Bisnis</h3>
-        <p>Pendalaman analisa berdasarkan data</p>
+        <p>Laporan & insight otomatis dari AI</p>
       </a>
     </div>
   </div>
