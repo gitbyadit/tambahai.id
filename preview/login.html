@@ -216,6 +216,14 @@
           <option value="viewer">Viewer</option>
         </select>
       </div>
+      <!-- Verifikasi eID -->
+      <div class="form-group" style="margin-top:18px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:500;color:var(--text-primary);">
+          <input type="checkbox" id="eidCheck" checked style="width:17px;height:17px;cursor:pointer;">
+          <span>Verifikasi identitas melalui <strong>eID</strong> 🪪</span>
+        </label>
+        <p style="font-size:.75rem;color:var(--text-secondary);margin-top:6px;line-height:1.5;">Akses hanya diberikan kepada pengguna dengan identitas terverifikasi eID.</p>
+      </div>
       <button type="submit" class="btn-submit">Daftar →</button>
       <div class="demo-note">
         Pilih role untuk demo permission.<br>Nanti di dashboard tampilan tiap role beda.
@@ -256,10 +264,12 @@
     const name = e.target[0].value;
     const email = e.target[1].value;
     const role = document.getElementById('roleSelect').value;
-    const user = { name, email, role };
+    const eidVerified = document.getElementById('eidCheck').checked;
+    const user = { name, email, role, eidVerified, eidConfirmed: false };
     localStorage.setItem('tambahai_user', JSON.stringify(user));
     localStorage.setItem('tambahai_token', 'demo-token-' + Date.now());
-    window.location.href = 'dashboard.html';
+    // Arahkan ke halaman verifikasi eID setelah daftar
+    window.location.href = 'verify-eid.html';
   }
 </script>
 

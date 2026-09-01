@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifikasi eID — TambahAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #fbfbfd; --surface: #ffffff; --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73; --accent: #0071e3; --grad1: #6e3bfd; --grad2: #0071e3;
+      --border: rgba(0,0,0,0.08); --radius: 16px; --green: #34c759; --orange: #ff9f0a;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+
+    nav {
+      height: 52px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; border-bottom: 1px solid var(--border);
+      background: rgba(251,251,253,0.85); backdrop-filter: saturate(180%) blur(20px);
+    }
+    .logo { font-weight: 700; font-size: 1.15rem; text-decoration: none;
+      background: linear-gradient(135deg,var(--grad1),var(--grad2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+    .nav-step { font-size: .82rem; color: var(--text-secondary); font-weight: 500; }
+
+    .page { max-width: 520px; margin: 0 auto; padding: 48px 24px 60px; }
+
+    /* STEPPER */
+    .stepper { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:40px; }
+    .step { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .step-dot {
+      width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:.8rem;font-weight:700;color:var(--text-secondary);background:#f2f2f7;
+      transition:all .3s;
+    }
+    .step.done .step-dot { background:var(--green); color:#fff; }
+    .step.active .step-dot { background:linear-gradient(135deg,var(--grad1),var(--grad2)); color:#fff; box-shadow:0 0 0 4px rgba(0,113,227,.12); }
+    .step-label { font-size:.7rem; color:var(--text-secondary); font-weight:500; }
+    .step.active .step-label { color:var(--accent); font-weight:600; }
+    .step-line { width:56px;height:2px;background:#e5e5ea; margin-bottom:22px; }
+    .step-line.done { background:var(--green); }
+
+    /* CARD */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:36px 32px; box-shadow:0 8px 40px rgba(0,0,0,.06); }
+    .card-icon {
+      width:64px;height:64px;border-radius:50%;margin:0 auto 20px;
+      background:linear-gradient(135deg,rgba(110,59,253,.1),rgba(0,113,227,.1));
+      display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+    }
+    .card h1 { font-size:1.4rem; font-weight:700; text-align:center; margin-bottom:8px; }
+    .card .desc { text-align:center; color:var(--text-secondary); font-size:.9rem; line-height:1.55; margin-bottom:28px; }
+
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:.82rem; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
+    .form-group input {
+      width:100%; padding:13px 16px; border:1.5px solid var(--border); border-radius:12px;
+      font-size:.95rem; font-family:inherit; transition:border-color .2s, box-shadow .2s;
+      outline:none; background:var(--bg);
+    }
+    .form-group input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,113,227,.08); }
+
+    .btn-primary {
+      width:100%; padding:15px; border:none; border-radius:12px;
+      background:linear-gradient(135deg,var(--grad1),var(--grad2)); color:#fff;
+      font-size:1rem; font-weight:600; cursor:pointer; font-family:inherit;
+      transition:opacity .2s, transform .2s; margin-top:6px;
+    }
+    .btn-primary:hover:not(:disabled) { opacity:.92; transform:translateY(-1px); }
+    .btn-primary:disabled { opacity:.55; cursor:not-allowed; }
+    .btn-reset {
+      width:100%; padding:12px; border:none; border-radius:12px;
+      background:none; color:var(--text-secondary); font-size:.85rem;
+      cursor:pointer; font-family:inherit; margin-top:10px;
+    }
+    .btn-reset:hover { color:var(--accent); }
+
+    /* STEP 3 - SUCCESS */
+    .success-check {
+      width:80px;height:80px;border-radius:50%;margin:0 auto 20px;
+      background:rgba(52,199,89,.12); display:flex;align-items:center;justify-content:center;
+      font-size:2.4rem; color:var(--green);
+    }
+    .success-detail {
+      background:#f8f8f8; border-radius:12px; padding:18px; margin:24px 0;
+    }
+    .success-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:.88rem; }
+    .success-row .k { color:var(--text-secondary); }
+    .success-row .v { font-weight:600; }
+    .badge-ok { background:rgba(52,199,89,.12); color:var(--green); padding:2px 10px; border-radius:980px; font-size:.72rem; font-weight:700; }
+
+    /* VERIFYING */
+    .verifying-wrap { text-align:center; padding:10px 0; }
+    .spinner {
+      width:44px;height:44px;border-radius:50%;margin:0 auto 18px;
+      border:4px solid #eef0f2; border-top-color:var(--accent);
+      animation:spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .verifying-wrap p { color:var(--text-secondary); font-size:.9rem; }
+
+    .security-note {
+      margin-top:20px; padding:14px; border-radius:10px;
+      background:rgba(110,59,253,.04); font-size:.78rem; color:var(--text-secondary);
+      text-align:center; line-height:1.6;
+    }
+
+    @media (max-width:480px){ .step-line{width:34px;} .card{padding:28px 22px;} }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">TambahAI</a>
+  <span class="nav-step" id="navStep">Verifikasi eID</span>
+</nav>
+
+<div class="page">
+  <!-- STEPPER -->
+  <div class="stepper">
+    <div class="step done" id="st1">
+      <div class="step-dot">✓</div>
+      <div class="step-label">Daftar</div>
+    </div>
+    <div class="step-line done" id="line1"></div>
+    <div class="step active" id="st2">
+      <div class="step-dot">2</div>
+      <div class="step-label">Verifikasi eID</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step" id="st3">
+      <div class="step-dot">3</div>
+      <div class="step-label">Selesai</div>
+    </div>
+  </div>
+
+  <!-- STEP 2: FORM VERIFIKASI -->
+  <div class="card" id="cardForm">
+    <div class="card-icon">🪪</div>
+    <h1>Verifikasi Identitas via eID</h1>
+    <p class="desc">Untuk keamanan akun, mohon verifikasi identitasmu menggunakan eID sebelum melanjutkan. Data terenkripsi dan dijaga kerahasiaannya.</p>
+    <form id="verifyForm">
+      <div class="form-group">
+        <label>Nomor eID / NIK</label>
+        <input type="text" id="eidNumber" placeholder="Contoh: 3273xxxxxxxxxx" maxlength="16" required>
+      </div>
+      <div class="form-group">
+        <label>Nama sesuai eID</label>
+        <input type="text" id="eidName" placeholder="Nama lengkap sesuai dokumen" required>
+      </div>
+      <button type="submit" class="btn-primary">Verifikasi Sekarang</button>
+      <button type="button" class="btn-reset" onclick="location.href='dashboard.html'">Lewati untuk sekarang</button>
+    </form>
+  </div>
+
+  <!-- STEP 2b: VERIFYING -->
+  <div class="card" id="cardVerifying" style="display:none;">
+    <div class="verifying-wrap">
+      <div class="spinner"></div>
+      <h2 style="font-size:1.2rem;margin-bottom:6px;">Memverifikasi identitas...</h2>
+      <p>Menghubungkan ke layanan eID & memeriksa kecocokan data.</p>
+    </div>
+  </div>
+
+  <!-- STEP 3: SUCCESS -->
+  <div class="card" id="cardSuccess" style="display:none;">
+    <div class="success-check">✓</div>
+    <h1>Identitas Terverifikasi!</h1>
+    <p class="desc">Selamat, akunmu telah diverifikasi melalui eID. Kamu kini dapat mengakses penuh fitur TambahAI.</p>
+    <div class="success-detail">
+      <div class="success-row"><span class="k">Status eID</span><span class="badge-ok">✓ Terverifikasi</span></div>
+      <div class="success-row"><span class="k">Akses</span><span class="v">Penuh</span></div>
+    </div>
+    <button class="btn-primary" onclick="goDashboard()">Masuk ke Dashboard →</button>
+  </div>
+
+  <div class="security-note">🔒 Verifikasi eID memastikan hanya pengguna sungguhan yang mendapatkan akses. Informasi identitasmu aman dan tidak pernah dibagikan tanpa izin.</div>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('tambahai_user') || '{}');
+
+  // Jika sudah terverifikasi penuh, langsung ke dashboard
+  if (user.eidVerified === true && user.eidConfirmed === true) {
+    window.location.href = 'dashboard.html';
+  }
+
+  function updateStepper(step){
+    const steps = {1:'st1',2:'st2',3:'st3'};
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active','done'));
+    document.getElementById(steps[step]).classList.add('active');
+    for(let i=1;i<step;i++){ document.getElementById(steps[i]).classList.add('done'); }
+    document.getElementById('line1').classList.toggle('done', step>2);
+    document.getElementById('line2').classList.toggle('done', step>3);
+  }
+
+  document.getElementById('verifyForm')?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const number = document.getElementById('eidNumber').value.trim();
+    const name = document.getElementById('eidName').value.trim();
+    if (number.length < 12) { alert('Masukkan nomor eID/NIK yang valid (min. 12 digit).'); return; }
+
+    // Tampilkan proses verifying
+    document.getElementById('cardForm').style.display = 'none';
+    document.getElementById('cardVerifying').style.display = 'block';
+
+    // Simulasi proses verifikasi eID
+    setTimeout(()=>{
+      user.eidVerified = true;
+      user.eidConfirmed = true;
+      user.eidNumber = number.replace(/.(?=.{4})/g, '*'); // mask
+      user.eidName = name;
+      localStorage.setItem('tambahai_user', JSON.stringify(user));
+
+      document.getElementById('cardVerifying').style.display = 'none';
+      document.getElementById('cardSuccess').style.display = 'block';
+      updateStepper(3);
+    }, 2000);
+  });
+
+  function goDashboard(){
+    window.location.href = 'dashboard.html';
+  }
+</script>
+
+</body>
+</html>

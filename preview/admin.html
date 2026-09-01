@@ -89,6 +89,10 @@
     .st-active { background:rgba(52,199,89,.1); color:var(--green); }
     .st-inactive { background:rgba(255,59,48,.08); color:var(--red); }
 
+    .eid-pill { padding:3px 10px; border-radius:980px; font-size:.72rem; font-weight:600; white-space:nowrap; }
+    .eid-verified { background:rgba(52,199,89,.12); color:var(--green); }
+    .eid-pending { background:rgba(255,159,10,.1); color:var(--orange); }
+
     .action-btn {
       background:none; border:1px solid var(--border); border-radius:8px; padding:4px 9px;
       font-size:.75rem; color:var(--text-secondary); cursor:pointer; font-family:inherit; margin-right:4px;
@@ -207,12 +211,12 @@
 
   // ── DATA ──
   let users = [
-    { id:1, name:'Adit Maulana', email:'adit@tambah.ai', role:'admin', status:'active' },
-    { id:2, name:'Rina Safitri', email:'rina@tambah.ai', role:'operator', status:'active' },
-    { id:3, name:'Budiman H.', email:'budiman@tambah.ai', role:'operator', status:'active' },
-    { id:4, name:'Sari Wulandari', email:'sari@tambah.ai', role:'viewer', status:'active' },
-    { id:5, name:'Deni Kurniawan', email:'deni@tambah.ai', role:'viewer', status:'inactive' },
-    { id:6, name:'Maya Puspita', email:'maya@tambah.ai', role:'operator', status:'active' },
+    { id:1, name:'Adit Maulana', email:'adit@tambah.ai', role:'admin', status:'active', eidVerified:true },
+    { id:2, name:'Rina Safitri', email:'rina@tambah.ai', role:'operator', status:'active', eidVerified:true },
+    { id:3, name:'Budiman H.', email:'budiman@tambah.ai', role:'operator', status:'active', eidVerified:false },
+    { id:4, name:'Sari Wulandari', email:'sari@tambah.ai', role:'viewer', status:'active', eidVerified:true },
+    { id:5, name:'Deni Kurniawan', email:'deni@tambah.ai', role:'viewer', status:'inactive', eidVerified:false },
+    { id:6, name:'Maya Puspita', email:'maya@tambah.ai', role:'operator', status:'active', eidVerified:false },
   ];
 
   const avatarColors = { admin:'avatar-orange', operator:'avatar-blue', viewer:'avatar-purple' };
@@ -306,6 +310,8 @@
     filtered.forEach(u => {
       const statusCls = u.status === 'active' ? 'st-active' : 'st-inactive';
       const statusTxt = u.status === 'active' ? 'Aktif' : 'Nonaktif';
+      const eidCls = u.eidVerified ? 'eid-verified' : 'eid-pending';
+      const eidTxt = u.eidVerified ? '✓ Terverifikasi' : '• Belum';
       rows += `
         <tr>
           <td>
@@ -318,9 +324,11 @@
             </div>
           </td>
           <td><span class="role-pill pill-${u.role}">${roleLabel(u.role)}</span></td>
+          <td><span class="eid-pill ${eidCls}">🪪 ${eidTxt}</span></td>
           <td><span class="status-pill ${statusCls}">${statusTxt}</span></td>
           <td style="text-align:right;white-space:nowrap;">
             <button class="action-btn" onclick='editUser(${u.id})'>✏️ Edit</button>
+            <button class="action-btn" onclick='toggleEid(${u.id})'>${u.eidVerified?'🪪':'🪪'}</button>
             <button class="action-btn danger" onclick='toggleUser(${u.id})'>${u.status==='active'?'⛔':'✅'}</button>
           </td>
         </tr>`;
@@ -328,7 +336,7 @@
 
     wrap.innerHTML = `
       <table>
-        <thead><tr><th>Pengguna</th><th>Role</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+        <thead><tr><th>Pengguna</th><th>Role</th><th>eID</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
   }
@@ -369,6 +377,12 @@
     renderContent();
   }
 
+  function toggleEid(id){
+    const u = users.find(x=>x.id===id);
+    if (u) { u.eidVerified = !u.eidVerified; }
+    renderContent();
+  }
+
   // Submit form
   document.getElementById('userForm').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -381,7 +395,7 @@
       const u = users.find(x=>x.id===editingId);
       if (u) { u.name=name; u.email=email; u.role=role; u.status=status; }
     } else {
-      users.push({ id: Date.now(), name, email, role, status });
+      users.push({ id: Date.now(), name, email, role, status, eidVerified: true });
     }
     closeModal();
     renderContent();
