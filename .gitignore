@@ -4,7 +4,27 @@ package-lock.json
 
 # Environment
 .env
+.env.*
+!.env.example
+
+# Dev internal notes & plans (bukan untuk repo publik)
+plan.md
+*.plan.md
+docs-internal/
+*.note.md
+*.draft.md
+*_internal.md
+scratch/
+tmp/
+
+# Environment / Local config
+.vscode/
+.idea/
+*.local
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log

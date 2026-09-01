@@ -77,8 +77,8 @@ Role-lock diterapkan: halaman `admin.html` dan `report.html` memvalidasi role da
 Demo ini murni **frontend statis** (HTML/CSS/JS murni + localStorage) — tidak perlu backend.
 
 ```bash
-# Masuk ke folder project
-cd /home/fast
+# Masuk ke folder project (setelah clone)
+cd tambahai.id
 
 # Jalankan server (gunakan http-server dari node_modules)
 npx http-server . -p 3000
