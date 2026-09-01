@@ -10,12 +10,14 @@ package-lock.json
 # Dev internal notes & plans (bukan untuk repo publik)
 plan.md
 *.plan.md
+docs/
 docs-internal/
 *.note.md
 *.draft.md
 *_internal.md
 scratch/
 tmp/
+scripts/
 
 # Environment / Local config
 .vscode/
